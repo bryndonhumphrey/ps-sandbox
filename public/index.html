@@ -125,13 +125,26 @@ if (randNum < 25) {
             account: {
               id:       accountParam || account_id
             },
-
             events: {
               ready: function () {
               pendo.addBodyMutationListener();
             }
-          }
-        });
+          },
+          guides: {
+            globalScripts: [
+                {
+                    beforeMount: function(step, guide) {
+                        console.log('Step ', step.id, ' has run since there is a poll');
+                        console.log(step)
+                    },
+                    // Only run this on a specific known step id
+                    test: function(step, guide) { 
+                        return step.polls.length >= 1;
+                    }
+                }
+            ]
+        }
+      });
 
         pendo.addAltText = function(guideId) {
           var badgeId = pendo.badgesShown[guideId].domJson.children[1].props.id;
