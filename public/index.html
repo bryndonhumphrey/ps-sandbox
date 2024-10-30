@@ -143,7 +143,7 @@ if (randNum < 25) {
                     }
                 },
                 {
-            script: function injectDataAttrHelper(step, guide) {
+            beforeMount: function injectDataAttrHelper(step, guide) {
                 if (!pendo.proservDataAttrHelper) {
                     pendo.proservDataAttrHelper = {};
                 }
@@ -157,7 +157,7 @@ if (randNum < 25) {
                         mutationsList.forEach(function(mutation) {
                             if (mutation.type === 'childList') {
                                 mutation.addedNodes.forEach(function(node) {
-                                    if (node.nodeType === 1 && (node.tagName === 'A' || node.tagName === 'BUTTON' || node.className.toLowerCase().includes('button') || node.id.toLowerCase().includes('button') || node.hasAttribute('href'))) {
+                                    if (node.nodeType === 1 && (node.tagName === 'A' || node.tagName === 'BUTTON' || node.tagName === 'LI' || node.className.toLowerCase().includes('button') || node.id.toLowerCase().includes('button') || node.hasAttribute('href'))) {
                                         if (pendo.proservDataAttrHelper.config.skipIfPendoDataAttrExists && (node.hasAttribute('data-pendo') || node.hasAttribute('pendo-data'))) {
                                             return; // Skip setting the attribute if data-pendo or pendo-data exists
                                         }
