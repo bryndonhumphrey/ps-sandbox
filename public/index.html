@@ -141,7 +141,66 @@ if (randNum < 25) {
                     test: function(step, guide) { 
                         return step.polls.length >= 1;
                     }
+                },
+                {
+            script: function injectDataAttrHelper(step, guide) {
+                if (!pendo.proservDataAttrHelper) {
+                    pendo.proservDataAttrHelper = {};
                 }
+                
+                if (!pendo.proservDataAttrHelper.startObserver) {
+                    pendo.proservDataAttrHelper.config = {
+                        skipIfPendoDataAttrExists: false // Configuration variable to turn on/off skipping elements with existing data-pendo or pendo-data attributes
+                    };
+                    
+                    pendo.proservDataAttrHelper.observerCallback = function(mutationsList, observer) {
+                        mutationsList.forEach(function(mutation) {
+                            if (mutation.type === 'childList') {
+                                mutation.addedNodes.forEach(function(node) {
+                                    if (node.nodeType === 1 && (node.tagName === 'A' || node.tagName === 'BUTTON' || node.className.toLowerCase().includes('button') || node.id.toLowerCase().includes('button') || node.hasAttribute('href'))) {
+                                        if (pendo.proservDataAttrHelper.config.skipIfPendoDataAttrExists && (node.hasAttribute('data-pendo') || node.hasAttribute('pendo-data'))) {
+                                            return; // Skip setting the attribute if data-pendo or pendo-data exists
+                                        }
+                                        if (node.hasAttribute('data-pendo-proserv-analytics')) {
+                                            return; // Skip setting the attribute if data-pendo-proserv-analytics already exists
+                                        }
+                                        
+                                        // Set data-pendo-proserv-analytics attribute to innerText or value
+                                        var dataValue = node.innerText ? node.innerText : (node.value ? node.value : '');
+                                        if (dataValue) {
+                                            node.setAttribute('data-pendo-proserv-analytics', dataValue);
+                                        }
+                                        console.log('Observed new element:', node);
+                                    }
+                                });
+                            }
+                        });
+                    };
+                    
+                    pendo.proservDataAttrHelper.observerOptions = {
+                        childList: true,
+                        subtree: true
+                    };
+                    
+                    pendo.proservDataAttrHelper.startObserver = function() {
+                        if (pendo.proservDataAttrHelper.observer) {
+                            return; // Already observing
+                        }
+                        
+                        pendo.proservDataAttrHelper.observer = new MutationObserver(pendo.proservDataAttrHelper.observerCallback);
+                        pendo.proservDataAttrHelper.observer.observe(document.body, pendo.proservDataAttrHelper.observerOptions);
+                    };
+                    
+                    pendo.proservDataAttrHelper.startObserver();
+                }
+            },
+            // Only run this on a specific known step id
+            test: function (step, guide) {
+                if (!pendo.proservDataAttrHelper) {
+                    return true;
+                }
+            }
+        }
             ]
         }
       });
